@@ -93,6 +93,12 @@ function prettyProps(props: any) {
       ) {
         return `${prop}=<jsx>`;
       }
+      if (prop === "src") {
+        const _value = Array.isArray(value)
+          ? JSON.stringify(value.map(() => "{url}"))
+          : `"{url}"`;
+        return `${prop}=${_value}`;
+      }
       return `${prop}=${JSON.stringify(value)}`;
     })
     .join(" ");
@@ -150,13 +156,15 @@ export function describeScreenshotFuzz<Props>(
   platforms.forEach((platform) => {
     describe(platform, () => {
       const isVKCOM = platform === Platform.VKCOM;
-      let width: number = getAdaptivePxWidth(adaptivity.viewWidth);
+      let width: number | undefined = getAdaptivePxWidth(
+        adaptivity.viewWidth as number
+      );
 
       if (!width) {
         width = isVKCOM ? DESKTOP_SIZE : MOBILE_SIZE;
       }
 
-      const adaptivityProps = Object.assign(
+      const adaptivityProps: AdaptivityProps = Object.assign(
         isVKCOM ? { sizeX: SizeType.COMPACT, sizeY: SizeType.COMPACT } : {},
         adaptivity
       );
